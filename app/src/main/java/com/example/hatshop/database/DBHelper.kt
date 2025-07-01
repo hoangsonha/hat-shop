@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.hatshop.models.CartItem
+import com.example.hatshop.models.CartWithProduct
 import com.example.hatshop.models.Product
 import com.example.hatshop.models.Shop
 import com.example.hatshop.models.User
@@ -95,6 +96,26 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "hatshop.db", null,
     // ------------------------
     // User
     // ------------------------
+    fun getUserById(id: Int): User? {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM User WHERE id = ?", arrayOf(id.toString()))
+        var user: User? = null
+
+        if (cursor.moveToFirst()) {
+            user = User(
+                id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                username = cursor.getString(cursor.getColumnIndexOrThrow("username")),
+                password = cursor.getString(cursor.getColumnIndexOrThrow("password")),
+                fullName = cursor.getString(cursor.getColumnIndexOrThrow("fullName")),
+                email = cursor.getString(cursor.getColumnIndexOrThrow("email")),
+                phone = cursor.getString(cursor.getColumnIndexOrThrow("phone")),
+                address = cursor.getString(cursor.getColumnIndexOrThrow("address"))
+            )
+        }
+        cursor.close()
+        return user
+    }
+
     fun insertUser(user: User): Long {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -234,9 +255,42 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "hatshop.db", null,
         return list
     }
 
-    fun clearCart(userId: Int) {
-        writableDatabase.delete("Cart", "userId = ?", arrayOf(userId.toString()))
+    fun getCartWithProduct(userId: Int): List<CartWithProduct> {
+        val list = mutableListOf<CartWithProduct>()
+        val db = readableDatabase
+        val cursor = db.rawQuery("""
+        SELECT Cart.id, Product.name, Product.imagePath, Product.price, Cart.quantity
+        FROM Cart
+        INNER JOIN Product ON Cart.productId = Product.id
+        WHERE Cart.userId = ?
+    """, arrayOf(userId.toString()))
+
+        while (cursor.moveToNext()) {
+            list.add(
+                CartWithProduct(
+                    cartId = cursor.getInt(0),
+                    productName = cursor.getString(1),
+                    productImage = cursor.getString(2),
+                    price = cursor.getDouble(3),
+                    quantity = cursor.getInt(4)
+                )
+            )
+        }
+
+        cursor.close()
+        return list
     }
 
-    
+    fun removeCartItem(cartId: Int): Boolean {
+        val db = writableDatabase
+        return db.delete("Cart", "id = ?", arrayOf(cartId.toString())) > 0
+    }
+
+    fun clearCart(userId: Int) {
+        val db = writableDatabase
+        db.delete("Cart", "userId = ?", arrayOf(userId.toString()))
+    }
+
+
+
 }
