@@ -36,7 +36,7 @@ class LoginActivity : AppCompatActivity() {
                 prefs.edit().putInt("userId", user.id).apply()
 
                 // Ví dụ: chuyển qua màn hình chính hoặc danh sách shop
-                val intent = Intent(this, ShopListActivity::class.java)
+                val intent = Intent(this, MainActivity::class.java)
                 intent.putExtra("userId", user.id)
                 startActivity(intent)
                 finish()

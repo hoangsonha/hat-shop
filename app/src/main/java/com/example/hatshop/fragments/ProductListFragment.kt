@@ -12,6 +12,7 @@ import com.example.hatshop.adapters.ProductAdapter
 import com.example.hatshop.database.DBHelper
 import com.example.hatshop.databinding.FragmentProductListBinding
 import com.example.hatshop.models.CartItem
+import com.example.hatshop.R
 
 class ProductListFragment : Fragment() {
 
@@ -39,14 +40,41 @@ class ProductListFragment : Fragment() {
         shopId = arguments?.getInt("shopId") ?: -1
 
         val productList = dbHelper.getProductsByShop(shopId)
-        val adapter = ProductAdapter(productList) { product ->
-            val result = dbHelper.addToCart(CartItem(0, userId, product.id, 1))
-            if (result != -1L) {
-                Toast.makeText(requireContext(), "Đã thêm ${product.name} vào giỏ", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "Không thể thêm vào giỏ", Toast.LENGTH_SHORT).show()
-            }
-        }
+//        val adapter = ProductAdapter(productList) { product ->
+//            val result = dbHelper.addToCart(CartItem(0, userId, product.id, 1))
+//            if (result != -1L) {
+//                Toast.makeText(requireContext(), "Đã thêm ${product.name} vào giỏ", Toast.LENGTH_SHORT).show()
+//            } else {
+//                Toast.makeText(requireContext(), "Không thể thêm vào giỏ", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+
+        val adapter = ProductAdapter(
+            list = productList,
+            onAddToCart = { product ->
+                val result = dbHelper.addToCart(CartItem(0, userId, product.id, 1))
+                if (result != -1L) {
+                    Toast.makeText(requireContext(), "Đã thêm ${product.name} vào giỏ", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Không thể thêm vào giỏ", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onDetailClick = { product ->
+                val frag = ProductDetailFragment.newInstance(product)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, frag)
+                    .addToBackStack(null)
+                    .commit()
+            },
+            onShopClick = { shopId ->
+                val frag = ShopProductFragment.newInstance(shopId)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, frag)
+                    .addToBackStack(null)
+                    .commit()
+            },
+            getShopName = { dbHelper.getShopById(it)?.name }
+        )
 
         binding.recyclerProducts.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerProducts.adapter = adapter

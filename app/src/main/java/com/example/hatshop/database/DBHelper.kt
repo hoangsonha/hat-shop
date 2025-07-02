@@ -6,6 +6,9 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.hatshop.models.CartItem
 import com.example.hatshop.models.CartWithProduct
+import com.example.hatshop.models.Order
+import com.example.hatshop.models.OrderDetail
+import com.example.hatshop.models.OrderItem
 import com.example.hatshop.models.Product
 import com.example.hatshop.models.Shop
 import com.example.hatshop.models.User
@@ -148,9 +151,104 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "hatshop.db", null,
         return user
     }
 
+    fun getOrdersByUserId(userId: Int): List<Order> {
+        val list = mutableListOf<Order>()
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM OrderTable WHERE userId = ?", arrayOf(userId.toString()))
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(
+                    Order(
+                        id = cursor.getInt(0),
+                        userId = cursor.getInt(1),
+                        totalAmount = cursor.getDouble(2),
+                        orderDate = cursor.getString(3)
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return list
+    }
+
+    fun getOrderDetailsDisplay(orderId: Int): List<OrderItem> {
+        val list = mutableListOf<OrderItem>()
+        val db = readableDatabase
+        val cursor = db.rawQuery("""
+        SELECT P.name, OD.quantity, OD.price
+        FROM OrderDetail OD
+        JOIN Product P ON OD.productId = P.id
+        WHERE OD.orderId = ?
+    """.trimIndent(), arrayOf(orderId.toString()))
+
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(
+                    OrderItem(
+                        productName = cursor.getString(0),
+                        quantity = cursor.getInt(1),
+                        price = cursor.getDouble(2)
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return list
+    }
+
+    fun getCartItems(userId: Int): List<CartItem> {
+        val list = mutableListOf<CartItem>()
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM Cart WHERE userId = ?", arrayOf(userId.toString()))
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(
+                    CartItem(
+                        id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                        userId = cursor.getInt(cursor.getColumnIndexOrThrow("userId")),
+                        productId = cursor.getInt(cursor.getColumnIndexOrThrow("productId")),
+                        quantity = cursor.getInt(cursor.getColumnIndexOrThrow("quantity"))
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return list
+    }
+
     // ------------------------
     // SHOP
     // ------------------------
+
+    fun getShopById(shopId: Int): Shop? {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM Shop WHERE id = ?", arrayOf(shopId.toString()))
+        var shop: Shop? = null
+        if (cursor.moveToFirst()) {
+            shop = Shop(
+                id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                name = cursor.getString(cursor.getColumnIndexOrThrow("name")),
+                address = cursor.getString(cursor.getColumnIndexOrThrow("address")),
+                latitude = cursor.getDouble(cursor.getColumnIndexOrThrow("latitude")),
+                longitude = cursor.getDouble(cursor.getColumnIndexOrThrow("longitude"))
+            )
+        }
+        cursor.close()
+        return shop
+    }
+
+    fun getShopNameById(shopId: Int): String? {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT name FROM Shop WHERE id = ?", arrayOf(shopId.toString()))
+        var name: String? = null
+        if (cursor.moveToFirst()) {
+            name = cursor.getString(0)
+        }
+        cursor.close()
+        return name
+    }
+
     fun insertShop(shop: Shop): Long {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -197,6 +295,29 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "hatshop.db", null,
             put("shopId", product.shopId)
         }
         return db.insert("Product", null, values)
+    }
+
+    fun getAllProducts(): List<Product> {
+        val list = mutableListOf<Product>()
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM Product", null)
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(
+                    Product(
+                        id = cursor.getInt(0),
+                        name = cursor.getString(1),
+                        price = cursor.getDouble(2),
+                        description = cursor.getString(3),
+                        imagePath = cursor.getString(4),
+                        stock = cursor.getInt(5),
+                        shopId = cursor.getInt(6)
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return list
     }
 
     fun getProductsByShop(shopId: Int): List<Product> {
