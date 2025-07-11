@@ -12,6 +12,9 @@ import com.example.hatshop.models.OrderItem
 import com.example.hatshop.models.Product
 import com.example.hatshop.models.Shop
 import com.example.hatshop.models.User
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context, "hatshop.db", null, 2) {
 
@@ -380,7 +383,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "hatshop.db", null,
         val list = mutableListOf<CartWithProduct>()
         val db = readableDatabase
         val cursor = db.rawQuery("""
-        SELECT Cart.id, Product.name, Product.imagePath, Product.price, Cart.quantity
+        SELECT Cart.id, Product.id, Product.name, Product.imagePath, Product.price, Cart.quantity
         FROM Cart
         INNER JOIN Product ON Cart.productId = Product.id
         WHERE Cart.userId = ?
@@ -390,10 +393,11 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "hatshop.db", null,
             list.add(
                 CartWithProduct(
                     cartId = cursor.getInt(0),
-                    productName = cursor.getString(1),
-                    productImage = cursor.getString(2),
-                    price = cursor.getDouble(3),
-                    quantity = cursor.getInt(4)
+                    productId = cursor.getInt(1),
+                    productName = cursor.getString(2),
+                    productImage = cursor.getString(3),
+                    price = cursor.getDouble(4),
+                    quantity = cursor.getInt(5)
                 )
             )
         }
@@ -412,6 +416,26 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "hatshop.db", null,
         db.delete("Cart", "userId = ?", arrayOf(userId.toString()))
     }
 
+    fun createOrder(userId: Int, totalAmount: Double): Long {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("userId", userId)
+            put("totalAmount", totalAmount)
+            put("orderDate", SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                Date()))
+        }
+        return db.insert("OrderTable", null, values)
+    }
 
+    fun insertOrderDetail(orderId: Long, productId: Int, quantity: Int, price: Double): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("orderId", orderId)
+            put("productId", productId)
+            put("quantity", quantity)
+            put("price", price)
+        }
+        return db.insert("OrderDetail", null, values) != -1L
+    }
 
 }

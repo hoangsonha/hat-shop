@@ -18,6 +18,7 @@ class CartFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var dbHelper: DBHelper
+    private lateinit var cartAdapter: CartAdapter
     private var userId: Int = -1
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -33,20 +34,55 @@ class CartFragment : Fragment() {
         userId = prefs.getInt("userId", -1)
 
         loadCart()
+
+        binding.btnCheckout.setOnClickListener {
+            processCheckout()
+        }
     }
 
     private fun loadCart() {
         val cartItems = dbHelper.getCartWithProduct(userId).toMutableList()
-        if (cartItems.isEmpty()) {
-            Toast.makeText(requireContext(), "Giỏ hàng của bạn trống", Toast.LENGTH_SHORT).show()
+        cartAdapter = CartAdapter(requireContext(), cartItems,
+            onRemove = { cartId ->
+                dbHelper.removeCartItem(cartId)
+                loadCart()
+            },
+            onItemCheckedChange = {
+                updateTotal()
+            }
+        )
+
+        binding.recyclerCart.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerCart.adapter = cartAdapter
+        updateTotal()
+    }
+
+    private fun updateTotal() {
+        val total = cartAdapter.getSelectedItems().sumOf { it.price * it.quantity }
+        binding.tvTotal.text = "Tổng: ${total.toInt()} VNĐ"
+    }
+
+    private fun processCheckout() {
+        val selectedItems = cartAdapter.getSelectedItems()
+        if (selectedItems.isEmpty()) {
+            Toast.makeText(requireContext(), "Bạn chưa chọn sản phẩm nào", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        val adapter = CartAdapter(requireContext(), cartItems) { cartId ->
-            dbHelper.removeCartItem(cartId)
-            loadCart()
+        val totalAmount = selectedItems.sumOf { it.price * it.quantity }
+        val orderId = dbHelper.createOrder(userId, totalAmount)
+        if (orderId == -1L) {
+            Toast.makeText(requireContext(), "Thanh toán thất bại", Toast.LENGTH_SHORT).show()
+            return
         }
-        binding.recyclerCart.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerCart.adapter = adapter
+
+        for (item in selectedItems) {
+            dbHelper.insertOrderDetail(orderId, item.productId, item.quantity, item.price)
+            dbHelper.removeCartItem(item.cartId)
+        }
+
+        Toast.makeText(requireContext(), "Đặt hàng thành công!", Toast.LENGTH_SHORT).show()
+        loadCart()
     }
 
     override fun onDestroyView() {
@@ -54,3 +90,4 @@ class CartFragment : Fragment() {
         _binding = null
     }
 }
+

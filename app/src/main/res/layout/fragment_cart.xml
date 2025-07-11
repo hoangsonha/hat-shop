@@ -8,5 +8,24 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerCart"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="550dp"
+        />
+
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tổng: 0 VNĐ"
+        android:layout_marginTop="20dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:gravity="end"/>
+
+    <Button
+        android:id="@+id/btnCheckout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Thanh toán" />
 </LinearLayout>
