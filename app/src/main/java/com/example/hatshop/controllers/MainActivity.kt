@@ -24,10 +24,26 @@ import android.Manifest
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
+    private lateinit var dbHelper: DBHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Giả sử bạn lưu userId vào SharedPreferences sau khi đăng nhập
+        val prefs = getSharedPreferences("hatshop", MODE_PRIVATE)
+        val userId = prefs.getInt("userId", -1)
+
+        if (userId == -1) {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
+
+        dbHelper = DBHelper(this)
+        DataSeeder.seed(dbHelper)
 
         createNotificationChannel()
 
