@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="6dp"
+    android:backgroundTint="@android:color/white">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Tiêu đề -->
+        <TextView
+            android:id="@+id/tvDialogTitle"
+            style="@style/TextAppearance.Material3.TitleLarge"
+            android:text="Thông tin cá nhân"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginBottom="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Dòng thông tin -->
+        <TextView
+            android:id="@+id/tvDialogUsername"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:text="👤 Username: "
+            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvDialogFullName"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:text="📝 Họ tên: "
+            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvDialogEmail"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:text="📧 Email: "
+            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvDialogPhone"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:text="📞 SĐT: "
+            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvDialogAddress"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:text="📍 Địa chỉ: "
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

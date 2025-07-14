@@ -13,6 +13,8 @@ import com.example.hatshop.controllers.LoginActivity
 import com.example.hatshop.database.DBHelper
 import com.example.hatshop.databinding.FragmentProfileBinding
 import com.example.hatshop.models.User
+import android.widget.TextView
+
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
@@ -35,16 +37,18 @@ class ProfileFragment : Fragment() {
         binding.cardInfo.setOnClickListener {
             val user = dbHelper.getUserById(userId)
             user?.let {
+                val dialogView = layoutInflater.inflate(R.layout.dialog_user_info, null)
+
+                dialogView.findViewById<TextView>(R.id.tvDialogUsername).text = "👤 Username: ${it.username}"
+                dialogView.findViewById<TextView>(R.id.tvDialogFullName).text = "📝 Họ tên: ${it.fullName}"
+                dialogView.findViewById<TextView>(R.id.tvDialogEmail).text = "📧 Email: ${it.email}"
+                dialogView.findViewById<TextView>(R.id.tvDialogPhone).text = "📞 SĐT: ${it.phone}"
+                dialogView.findViewById<TextView>(R.id.tvDialogAddress).text = "📍 Địa chỉ: ${it.address}"
+
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Thông tin cá nhân")
-                    .setMessage("""
-                        Username: ${it.username}
-                        Họ tên: ${it.fullName}
-                        Email: ${it.email}
-                        SĐT: ${it.phone}
-                        Địa chỉ: ${it.address}
-                    """.trimIndent())
+                    .setView(dialogView)
                     .setPositiveButton("Đóng", null)
+                    .create()
                     .show()
             }
         }
