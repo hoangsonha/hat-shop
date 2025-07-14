@@ -6,14 +6,19 @@
     android:layout_height="wrap_content"
     card_view:cardCornerRadius="12dp"
     card_view:cardElevation="6dp"
-    android:layout_marginBottom="12dp">
+    android:layout_marginBottom="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:backgroundTint="@android:color/white">
 
     <LinearLayout
         android:padding="16dp"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:baselineAligned="false">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -23,25 +28,32 @@
 
             <TextView
                 android:id="@+id/tvShopName"
-                android:textStyle="bold"
+                android:text="Tên cửa hàng"
                 android:textSize="18sp"
-                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:textColor="#212121"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/tvShopAddress"
+                android:text="Địa chỉ cửa hàng"
                 android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="#757575"
+                android:layout_marginTop="4dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"/>
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <Button
             android:id="@+id/btnXemMap"
+            android:text="Vị trí"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Vị trí" />
+            android:layout_height="40dp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#03A9F4"
+            android:textSize="14sp"
+            android:layout_marginStart="12dp"
+            android:elevation="2dp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
